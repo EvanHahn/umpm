@@ -1,17 +1,43 @@
 #! /usr/bin/env python2
 
 import os
+from shutil import copy2
 
-directory = os.path.expanduser('~/.umpm')
-already_installed = os.path.isdir(directory)
+DEFAULT_SOURCE_URL = 'TODO'
+DEFAULT_SOURCE = 'umpm'
+
+path = {}
+path['main'] = '~/.umpm'
+path['sources'] = '~/.umpm/sources'
+path['default_source'] = '~/.umpm/sources/' + DEFAULT_SOURCE
+path['cloned_bin'] = path['default_source'] + '/umpm'
+path['bin'] = '~/.umpm/bin'
+for key in path:
+    path[key] = os.path.expanduser(path[key])
+
+already_installed = os.path.isdir(path['main'])
 
 if already_installed:
     print 'umpm seems to already be installed!'
     print 'Uninstall it like so:'
     print ''
-    print '    rm -rf ~/.umpm'
+    print '    rm -rf ' + path['main']
     print ''
     print 'Try reinstalling after you do that.'
     exit(1)
 
 print 'Installing umpm...'
+
+os.mkdir(path['main'])
+os.mkdir(path['sources'])
+os.mkdir(path['bin'])
+
+os.system('cd ' + path[sources])
+os.system('git clone ' + DEFAULT_SOURCE_URL + ' ' + DEFAULT_SOURCE)
+os.system('cd -')
+
+copy2(path['cloned_bin'], path['bin'])
+
+print 'Almost done!'
+print 'Make sure you add the following to the beginning of your $PATH:'
+print path['bin']
