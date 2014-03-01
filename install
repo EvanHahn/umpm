@@ -1,0 +1,17 @@
+#! /usr/bin/env python2
+
+import os
+
+directory = os.path.expanduser('~/.umpm')
+already_installed = os.path.isdir(directory)
+
+if already_installed:
+    print 'umpm seems to already be installed!'
+    print 'Uninstall it like so:'
+    print ''
+    print '    rm -rf ~/.umpm'
+    print ''
+    print 'Try reinstalling after you do that.'
+    exit(1)
+
+print 'Installing umpm...'
