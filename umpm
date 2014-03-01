@@ -1,0 +1,25 @@
+#! /usr/bin/env python2
+
+import sys
+
+def unknown():
+    print 'Unknown command.'
+
+def help():
+    print 'Usage:'
+    print ''
+    print '    umpm install package_name'
+    print '    umpm search search'
+
+if __name__ == '__main__':
+
+    argv = sys.argv
+    argc = len(argv)
+
+    command = 'help'
+    if argc > 1:
+        command = argv[1]
+
+    {
+        'help': help
+    }.get(command, unknown)()
