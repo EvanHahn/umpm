@@ -3,7 +3,7 @@
 import os
 from shutil import copy2
 
-DEFAULT_SOURCE_URL = 'TODO'
+DEFAULT_SOURCE_URL = 'https://github.com/EvanHahn/umpm.git'
 DEFAULT_SOURCE = 'umpm'
 
 path = {}
