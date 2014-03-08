@@ -1,5 +1,6 @@
 #! /usr/bin/env python2
 
+import sys
 import os
 
 DEFAULT_SOURCE_URL = 'https://github.com/EvanHahn/umpm.git'
@@ -11,10 +12,13 @@ path['sources'] = '~/.umpm/sources'
 path['default_source'] = '~/.umpm/sources/' + DEFAULT_SOURCE
 path['cloned_bin'] = path['default_source'] + '/umpm'
 path['bin'] = '~/.umpm/bin'
+path['man'] = '~/.umpm/man'
+path['blue'] = '~/.umpm/blue'
 for key in path:
     path[key] = os.path.expanduser(path[key])
 
 already_installed = os.path.isdir(path['main'])
+is_development = '--dev' in sys.argv
 
 if already_installed:
     print 'umpm seems to already be installed!'
@@ -25,15 +29,23 @@ if already_installed:
     print 'Try reinstalling after you do that.'
     exit(1)
 
-print 'Installing umpm...'
+if is_development:
+    print 'Installing umpm in development mode...'
+else:
+    print 'Installing umpm...'
 
 os.mkdir(path['main'])
 os.mkdir(path['sources'])
 os.mkdir(path['bin'])
+os.mkdir(path['man'])
+os.mkdir(path['blue'])
 
-git_command = 'git clone -q ' + DEFAULT_SOURCE_URL + ' '
-git_command += path['default_source']
-os.system(git_command)
+if '--dev' in sys.argv:
+    os.system('ln -s ' + os.getcwd() + ' ' + path['default_source'])
+else:
+    git_command = 'git clone -q ' + DEFAULT_SOURCE_URL + ' '
+    git_command += path['default_source']
+    os.system(git_command)
 
 os.system('ln -s ' + path['cloned_bin'] + ' ' + path['bin'])
 

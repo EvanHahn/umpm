@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+make -s install PREFIX={PREFIX} MANPREFIX={PREFIX}

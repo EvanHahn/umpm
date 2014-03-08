@@ -1,10 +1,34 @@
 #! /usr/bin/env python2
 
+import os
 import sys
+import json
+from urllib import urlretrieve
 from glob import iglob
+
+path = {}
+path['main'] = '~/.umpm'
+path['sources'] = '~/.umpm/sources'
+path['bin'] = '~/.umpm/bin'
+path['man'] = '~/.umpm/man'
+path['blue'] = '~/.umpm/blue'
+for key in path:
+    path[key] = os.path.expanduser(path[key])
+
+# --- utility functions ---
+
+def source_paths():
+    return iglob(path['sources'] + '/*')
+
+def blue_path_for(package_name):
+    return os.path.join(path['blue'], package_name)
+
+# --- unknown command ---
 
 def unknown(argv):
     print 'Unknown command.'
+
+# --- help command ---
 
 def help(argv):
     print 'Usage:'
@@ -12,13 +36,84 @@ def help(argv):
     print '    umpm install package_name'
     print '    umpm search search'
 
+# --- uninstall command ---
+
+def uninstall(argv):
+
+    if len(argv) < 1:
+        print 'What package do you want to uninstall?'
+        return
+
+    package_name = argv[0]
+
+# --- install command ---
+
 def install(argv):
 
     if len(argv) < 1:
         print 'What package do you want to install?'
         return
 
-    package = argv[0]
+    desired_package = argv[0]
+
+    package_path = None
+
+    for source in source_paths():
+        source_name = os.path.basename(source)
+        packages = iglob(path['sources'] + '/' + source_name + '/packages/*')
+        for package in packages:
+            package_name = os.path.basename(package)
+            if package_name == desired_package:
+                package_path = package
+                break
+
+    if package_path is None:
+        print desired_package + ' not found!'
+        print 'Try `umpm update` if you think it should be there.'
+
+    else:
+
+        data_path = os.path.join(package_path, 'package.json')
+        data_file = open(data_path)
+        data = json.load(data_file)
+        data_file.close()
+
+        install_path = os.path.join(package_path, 'install')
+
+        version = data[u'version']
+        package_path = blue_path_for(desired_package)
+        if not os.path.isdir(package_path):
+            os.mkdir(package_path)
+        prefix = os.path.join(package_path, version)
+
+        download_type = data[u'download'][u'type']
+        download_url = data[u'download'][u'url']
+
+        if download_type == 'curl':
+            print 'Downloading ' + desired_package + ' from ' + download_url + '...'
+            # urlretrieve(data[u'url'], prefix)
+            print download_type + ' download type unfinished!'
+            return
+
+        elif download_type == 'git':
+            print 'Cloning ' + desired_package + ' from ' + download_url + '...'
+            git_command = 'git clone -q ' + download_url + ' ' + prefix
+            os.system(git_command)
+
+        with open(install_path, 'r') as install_file:
+            compiled_install_path = os.path.join(prefix, 'install-compiled')
+            compiled_install = install_file.read().format(
+                PREFIX=path['main']
+            )
+            with open(compiled_install_path, 'w') as compiled_installer:
+                compiled_installer.write(compiled_install)
+
+            install_command = 'chmod 775 ' + compiled_install_path + ' && ('
+            install_command += 'cd ' + prefix + ' && '
+            install_command += 'exec ' + compiled_install_path + ')'
+            os.system(install_command)
+
+# --- the main ---
 
 if __name__ == '__main__':
 
@@ -32,5 +127,6 @@ if __name__ == '__main__':
 
     {
         'help': help,
+        'uninstall': uninstall,
         'install': install
     }.get(command, unknown)(argv_rest)
