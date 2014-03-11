@@ -2,6 +2,7 @@
 
 import sys
 import os
+import errno
 
 DEFAULT_SOURCE_URL = 'https://github.com/EvanHahn/umpm.git'
 DEFAULT_SOURCE = 'umpm'
@@ -27,7 +28,7 @@ if already_installed:
     print '    rm -rf ' + path['main']
     print
     print 'Try reinstalling after you do that.'
-    exit(1)
+    exit(errno.EEXIST)
 
 if is_development:
     print 'Installing umpm in development mode...'

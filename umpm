@@ -3,6 +3,8 @@
 import os
 import sys
 import json
+import shutil
+import errno
 from urllib import urlretrieve
 from glob import iglob
 
@@ -23,10 +25,55 @@ def source_paths():
 def blue_path_for(package_name):
     return os.path.join(path['blue'], package_name)
 
+def source_path_for(desired_package):
+    for source in source_paths():
+        source_name = os.path.basename(source)
+        packages = iglob(path['sources'] + '/' + source_name + '/packages/*')
+        for package in packages:
+            package_name = os.path.basename(package)
+            if package_name == desired_package:
+                return package
+    return None
+
+def cloned_path_for(package, version):
+    return os.path.join(path['blue'], package + '/' + version)
+
+def package_source_file(package, filename):
+    directory = source_path_for(package)
+    if directory is None:
+        return None
+    return os.path.join(directory, filename)
+
+def package_info_for(package):
+    data_path = package_source_file(package, 'package.json')
+    if data_path is None:
+        return None
+    data_file = open(data_path)
+    data = json.load(data_file)
+    data_file.close()
+    return data
+
+def run_package_command(package, version, command):
+    original_path = package_source_file(package, command)
+    cloned_path = cloned_path_for(package, version)
+    with open(original_path, 'r') as original:
+        compiled_path = os.path.join(cloned_path, 'temp-umpm-compiled')
+        compiled_contents = original.read().format(
+            PREFIX=path['main']
+        )
+        with open(compiled_path, 'w') as compiled_file:
+            compiled_file.write(compiled_contents)
+        command = 'chmod 775 ' + compiled_path + ' && ('
+        command += 'cd ' + cloned_path + ' && '
+        command += 'exec ' + compiled_path + ')'
+        os.system(command)
+        os.remove(compiled_path)
+
 # --- unknown command ---
 
 def unknown(argv):
-    print 'Unknown command.'
+    print 'Unknown command. The heck?'
+    exit(errno.EINVAL)
 
 # --- help command ---
 
@@ -36,15 +83,32 @@ def help(argv):
     print '    umpm install package_name'
     print '    umpm search search'
 
+# -- uninstall umpm command --
+
+def uninstall_umpm(argv):
+
+    print 'Are you sure you want to uninstall me?'
+    it_is = raw_input('Type "for sure" to uninstall: ')
+    print
+    if it_is == 'for sure':
+        shutil.rmtree(path['main'])
+        print 'umpm uninstalled. Make sure to remove umpm from your $PATH.'
+        print
+        print 'Goodbye!'
+    else:
+        print 'Aborting uninstall. I live another day.'
+
 # --- uninstall command ---
 
 def uninstall(argv):
 
     if len(argv) < 1:
         print 'What package do you want to uninstall?'
-        return
+        exit(errno.EINVAL)
 
     package_name = argv[0]
+
+    # TODO
 
 # --- install command ---
 
@@ -52,39 +116,33 @@ def install(argv):
 
     if len(argv) < 1:
         print 'What package do you want to install?'
-        return
+        exit(1)
 
     desired_package = argv[0]
 
-    package_path = None
-
-    for source in source_paths():
-        source_name = os.path.basename(source)
-        packages = iglob(path['sources'] + '/' + source_name + '/packages/*')
-        for package in packages:
-            package_name = os.path.basename(package)
-            if package_name == desired_package:
-                package_path = package
-                break
-
-    if package_path is None:
+    data = package_info_for(desired_package)
+    if data is None:
         print desired_package + ' not found!'
         print 'Try `umpm update` if you think it should be there.'
 
     else:
 
-        data_path = os.path.join(package_path, 'package.json')
-        data_file = open(data_path)
-        data = json.load(data_file)
-        data_file.close()
-
-        install_path = os.path.join(package_path, 'install')
+        install_path = os.path.join(source_path_for(desired_package), 'install')
 
         version = data[u'version']
         package_path = blue_path_for(desired_package)
         if not os.path.isdir(package_path):
             os.mkdir(package_path)
         prefix = os.path.join(package_path, version)
+
+        if os.path.isdir(prefix):
+            if '--force' in argv:
+                shutil.rmtree(prefix)
+            else:
+                print desired_package + ' appears to already be installed. Try uninstalling, or:'
+                print
+                print '    umpm install ' + desired_package + ' --force'
+                exit(errno.EEXIST)
 
         download_type = data[u'download'][u'type']
         download_url = data[u'download'][u'url']
@@ -93,25 +151,18 @@ def install(argv):
             print 'Downloading ' + desired_package + ' from ' + download_url + '...'
             # urlretrieve(data[u'url'], prefix)
             print download_type + ' download type unfinished!'
-            return
+            exit(errno.ENOSYS)
 
         elif download_type == 'git':
             print 'Cloning ' + desired_package + ' from ' + download_url + '...'
             git_command = 'git clone -q ' + download_url + ' ' + prefix
             os.system(git_command)
 
-        with open(install_path, 'r') as install_file:
-            compiled_install_path = os.path.join(prefix, 'install-compiled')
-            compiled_install = install_file.read().format(
-                PREFIX=path['main']
-            )
-            with open(compiled_install_path, 'w') as compiled_installer:
-                compiled_installer.write(compiled_install)
+        print 'Installing...'
+        run_package_command(desired_package, version, 'install')
 
-            install_command = 'chmod 775 ' + compiled_install_path + ' && ('
-            install_command += 'cd ' + prefix + ' && '
-            install_command += 'exec ' + compiled_install_path + ')'
-            os.system(install_command)
+        print
+        print desired_package + ' installed!'
 
 # --- the main ---
 
@@ -128,5 +179,6 @@ if __name__ == '__main__':
     {
         'help': help,
         'uninstall': uninstall,
-        'install': install
+        'install': install,
+        'implode': uninstall_umpm
     }.get(command, unknown)(argv_rest)
