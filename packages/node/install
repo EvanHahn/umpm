@@ -1,0 +1,5 @@
+#! /usr/bin/env bash
+cp -r . ~/.nvm
+source ~/.nvm/nvm.sh
+nvm install v0.10.26
+nvm alias default 0.10.26

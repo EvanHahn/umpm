@@ -14,6 +14,7 @@ path['default_source'] = '~/.umpm/sources/' + DEFAULT_SOURCE
 path['cloned_bin'] = path['default_source'] + '/umpm'
 path['bin'] = '~/.umpm/bin'
 path['man'] = '~/.umpm/man'
+path['tmp'] = '~/.umpm/tmp'
 path['blue'] = '~/.umpm/blue'
 for key in path:
     path[key] = os.path.expanduser(path[key])
@@ -39,6 +40,7 @@ os.mkdir(path['main'])
 os.mkdir(path['sources'])
 os.mkdir(path['bin'])
 os.mkdir(path['man'])
+os.mkdir(path['tmp'])
 os.mkdir(path['blue'])
 
 if '--dev' in sys.argv:

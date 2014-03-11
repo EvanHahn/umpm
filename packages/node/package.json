@@ -1,0 +1,7 @@
+{
+  "version": "0.10.26",
+  "download": {
+    "type": "git",
+    "url": "https://github.com/creationix/nvm.git"
+  }
+}

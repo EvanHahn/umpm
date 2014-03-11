@@ -5,6 +5,8 @@ import sys
 import json
 import shutil
 import errno
+import tarfile
+import hashlib
 from urllib import urlretrieve
 from glob import iglob
 
@@ -13,6 +15,7 @@ path['main'] = '~/.umpm'
 path['sources'] = '~/.umpm/sources'
 path['bin'] = '~/.umpm/bin'
 path['man'] = '~/.umpm/man'
+path['tmp'] = '~/.umpm/tmp'
 path['blue'] = '~/.umpm/blue'
 for key in path:
     path[key] = os.path.expanduser(path[key])
@@ -68,6 +71,10 @@ def run_package_command(package, version, command):
         command += 'exec ' + compiled_path + ')'
         os.system(command)
         os.remove(compiled_path)
+
+def sha1_of(path):
+    with open(path, 'rb') as file:
+        return hashlib.sha1(file.read()).hexdigest()
 
 # --- unknown command ---
 
@@ -148,10 +155,32 @@ def install(argv):
         download_url = data[u'download'][u'url']
 
         if download_type == 'curl':
+
             print 'Downloading ' + desired_package + ' from ' + download_url + '...'
-            # urlretrieve(data[u'url'], prefix)
-            print download_type + ' download type unfinished!'
-            exit(errno.ENOSYS)
+
+            zip_path = os.path.join(path['tmp'], desired_package + '-temp')
+            urlretrieve(download_url, zip_path)
+
+            expected_sha1 = data[u'download'][u'sha1']
+            actual_sha1 = sha1_of(zip_path)
+            if expected_sha1 != actual_sha1:
+                print "Checksum of downloaded file doesn't match! Aborting!"
+                print 'SOMEONE COULD BE MESSING WITH YOUR CONNECTION.'
+                print
+                print '...or maybe there was a download error.'
+                exit(errno.EBADE)
+
+            if download_url[-7:] == '.tar.gz':
+                print 'Extracting file...'
+                tar = tarfile.open(zip_path, 'r:gz')
+                tar.extractall(prefix)
+                tar.close()
+
+            else:
+                print 'Cannot parse downloaded file. This is probably not your fault.'
+                exit(errno.ENOPKG)
+
+            exit(1) # TEMP TODO
 
         elif download_type == 'git':
             print 'Cloning ' + desired_package + ' from ' + download_url + '...'
@@ -163,6 +192,12 @@ def install(argv):
 
         print
         print desired_package + ' installed!'
+
+        post_install_path = package_source_file(desired_package, 'postinstall.txt')
+        if os.path.exists(post_install_path):
+            print
+            with open(post_install_path, 'r') as f:
+                print f.read()
 
 # --- the main ---
 

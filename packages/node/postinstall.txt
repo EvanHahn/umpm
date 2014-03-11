@@ -1,0 +1,13 @@
+This also installed npm and nvm. If you want to install other versions
+of Node (like 0.11), check out the nvm documentation.
+
+  https://github.com/creationix/nvm
+
+You're almost done! Run and add the following to your bashrc/zshrc:
+
+  source ~/.nvm/nvm.sh
+
+If you don't know what that means, run these two commands:
+
+  source ~/.nvm/nvm.sh
+  echo "source ~/.nvm/nvm.sh" >> ~/.bash_profile
