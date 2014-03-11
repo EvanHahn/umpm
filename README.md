@@ -16,3 +16,14 @@ umpm install node
 ```
 
 Still very much a work in progress.
+
+Installing the dev version
+--------------------------
+
+While this is being developed, it might make sense to install the development version.
+
+    # clone this repo
+    # cd into it
+    ./install --dev
+
+Then use as normal.
