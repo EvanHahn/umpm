@@ -5,4 +5,14 @@ The goal is to make something like apt-get or [Homebrew](http://brew.sh) for Uni
 
 Installation:
 
-    python2 -c "$(curl -sSL https://raw.github.com/EvanHahn/umpm/master/install)"
+```bash
+python2 -c "$(curl -sSL https://raw.github.com/EvanHahn/umpm/master/install)"
+```
+
+Usage:
+
+```bash
+umpm install node
+```
+
+Still very much a work in progress.
