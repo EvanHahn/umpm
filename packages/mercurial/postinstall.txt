@@ -1,0 +1,2 @@
+WEIRD BUG THAT'S MY FAULT: hg might not be installed on your system yet.
+Opening a new terminal should resolve this.
