@@ -101,7 +101,7 @@ def help(argv):
 
 def uninstall_umpm(argv):
 
-    print 'Are you sure you want to uninstall me?'
+    print "Are you sure you want to uninstall me? This won't uninstall all of your packages."
     it_is = raw_input('Type "for sure" to uninstall: ')
     print
     if it_is == 'for sure':
