@@ -64,6 +64,7 @@ def package_info_for(package):
     return data
 
 def run_package_command(package, version, command):
+    result = -1
     original_path = package_source_file(package, command)
     cloned_path = cloned_path_for(package, version)
     with open(original_path, 'r') as original:
@@ -76,8 +77,9 @@ def run_package_command(package, version, command):
         command = 'chmod 775 ' + compiled_path + ' && ('
         command += 'cd ' + cloned_path + ' && '
         command += 'exec ' + compiled_path + ')'
-        os.system(command)
+        result = os.system(command)
         os.remove(compiled_path)
+    return result
 
 def sha1_of(path):
     with open(path, 'rb') as file:
@@ -135,7 +137,7 @@ def uninstall(argv):
     try: shutil.rmtree(cloned_path_for(package_name, version))
     except: pass
 
-    print package_name + ' uninstalled, my friend'
+    print package_name + ' uninstalled, my friend.'
     post_path = package_source_file(package_name, 'postuninstall.txt')
     if os.path.exists(post_path):
         print
@@ -230,7 +232,12 @@ def install(argv):
             exit(errno.ENOPKG)
 
         print 'Installing...'
-        run_package_command(desired_package, version, 'install')
+        value = run_package_command(desired_package, version, 'install')
+
+        if value != 0:
+            print
+            print 'Package install failed with error code ' + str(value) + '.'
+            exit(errno.ENOPKG)
 
         print
         print desired_package + ' installed!'
