@@ -25,6 +25,13 @@ for key in path:
 def source_paths():
     return iglob(path['sources'] + '/*')
 
+def bin_path_for(package_name):
+    info = package_info_for(package_name)
+    package = package_name
+    if u'bin' in info:
+        package = info[u'bin']
+    return os.path.join(path['bin'], package)
+
 def blue_path_for(package_name):
     return os.path.join(path['blue'], package_name)
 
@@ -38,7 +45,7 @@ def source_path_for(desired_package):
                 return package
     return None
 
-def cloned_path_for(package, version):
+def cloned_path_for(package, version=None):
     return os.path.join(path['blue'], package + '/' + version)
 
 def package_source_file(package, filename):
@@ -115,7 +122,25 @@ def uninstall(argv):
 
     package_name = argv[0]
 
-    # TODO
+    info = package_info_for(package_name)
+    version = info[u'version']
+
+    uninstall_path = package_source_file(package_name, 'uninstall')
+    if os.path.exists(uninstall_path):
+        run_package_command(package_name, version, 'uninstall')
+
+    try: os.remove(bin_path_for(package_name))
+    except: pass
+
+    try: shutil.rmtree(cloned_path_for(package_name, version))
+    except: pass
+
+    print package_name + ' uninstalled, my friend'
+    post_path = package_source_file(package_name, 'postuninstall.txt')
+    if os.path.exists(post_path):
+        print
+        with open(post_path, 'r') as f:
+            print f.read()
 
 # --- install command ---
 
@@ -132,6 +157,11 @@ def install(argv):
         print desired_package + ' not found!'
         print 'Try `umpm update` if you think it should be there.'
 
+    if u'dependencies' in data:
+        print 'Installing dependencies...'
+        for dependency in data[u'dependencies']:
+            install([dependency, '--try'])
+
     else:
 
         install_path = os.path.join(source_path_for(desired_package), 'install')
@@ -145,6 +175,8 @@ def install(argv):
         if os.path.isdir(prefix):
             if '--force' in argv:
                 shutil.rmtree(prefix)
+            elif '--try' in argv:
+                return
             else:
                 print desired_package + ' appears to already be installed. Try uninstalling, or:'
                 print
@@ -180,12 +212,22 @@ def install(argv):
                 print 'Cannot parse downloaded file. This is probably not your fault.'
                 exit(errno.ENOPKG)
 
-            exit(1) # TEMP TODO
-
         elif download_type == 'git':
             print 'Cloning ' + desired_package + ' from ' + download_url + '...'
             git_command = 'git clone -q ' + download_url + ' ' + prefix
             os.system(git_command)
+
+        elif download_type == 'hg':
+            print 'Cloning ' + desired_package + ' from ' + download_url + '...'
+            flags = ''
+            if u'flags' in data[u'download']:
+                flags = data[u'download'][u'flags']
+            git_command = '~/.umpm/bin/hg clone ' + flags + ' ' + download_url + ' ' + prefix
+            os.system(git_command)
+
+        else:
+            print 'Unsupported download type. Probably not your fault.'
+            exit(errno.ENOPKG)
 
         print 'Installing...'
         run_package_command(desired_package, version, 'install')

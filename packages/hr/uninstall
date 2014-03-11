@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+make -s uninstall PREFIX={PREFIX} MANPREFIX={PREFIX}
