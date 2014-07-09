@@ -6,7 +6,7 @@ A simple-to-understand package manager that doesn't require root. Made for Unive
 Installation:
 
 ```sh
-curl -sSL https://raw.github.com/EvanHahn/umpm/master/install | sh
+curl -sSL https://raw.githubusercontent.com/EvanHahn/umpm/master/install | bash
 ```
 
 Usage:
