@@ -15,6 +15,7 @@ path['cloned_bin'] = path['default_source'] + '/umpm'
 path['bin'] = '~/.umpm/bin'
 path['man'] = '~/.umpm/man'
 path['tmp'] = '~/.umpm/tmp'
+path['lib'] = '~/.umpm/lib'
 path['blue'] = '~/.umpm/blue'
 for key in path:
     path[key] = os.path.expanduser(path[key])
@@ -54,6 +55,8 @@ os.system('ln -s ' + path['cloned_bin'] + ' ' + path['bin'])
 
 print
 
-print 'Install complete! One last step...'
-print 'Make sure you add the following to the beginning of your $PATH:'
-print path['bin']
+print 'Install complete! One last thing...'
+print 'Add the following two lines to your .bash_profile (or bashrc, or whatever):'
+print
+print '    export PATH="' + path['bin'] + ':$PATH"'
+print '    export LD_LIBRARY_PATH="' + path['lib'] + '$LD_LIBRARY_PATH"'
