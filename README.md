@@ -1,29 +1,27 @@
-umpm, a package manager for CAEN Linux students
-===============================================
+umpm, a simple package manager for the University of Michigan's CAEN
+====================================================================
 
-A simple-to-understand package manager that doesn't require root. Made for University of Michigan CAEN students but might work elsewhere.
+If you want to install packages on CAEN, enter umpm. No sudo needed!
 
-Installation:
+Installation is one line:
 
 ```sh
 curl -sSL https://raw.githubusercontent.com/EvanHahn/umpm/master/install | bash
 ```
 
-Usage:
+Usage is pretty simple:
 
 ```sh
+# what can we install?
+umpm list
+umpm search node
+
+# how do we install a package?
 umpm install node
+
+# how do we unininstall a package?
+umpm uninstall node
+
+# how do we uninstall umpm completely?
+umpm implode
 ```
-
-Still very much a work in progress.
-
-Installing the dev version
---------------------------
-
-While this is being developed, it might make sense to install the development version.
-
-    # clone this repo
-    # cd into it
-    ./install --dev
-
-Then use as normal.
