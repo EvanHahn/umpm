@@ -1,4 +1,0 @@
-#! /usr/bin/env bash
-# cd src
-# ./all.bash
-echo 'TODO: actually install go'

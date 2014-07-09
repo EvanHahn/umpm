@@ -1,3 +1,0 @@
-Make sure you add a $GOPATH:
-
-  http://golang.org/doc/code.html#GOPATH
