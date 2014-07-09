@@ -1,17 +1,17 @@
 umpm, a package manager for CAEN Linux students
 ===============================================
 
-The goal is to make something like apt-get or [Homebrew](http://brew.sh) for University of Michigan CAEN students.
+A simple-to-understand package manager that doesn't require root. Made for University of Michigan CAEN students but might work elsewhere.
 
 Installation:
 
-```bash
-python2 -c "$(curl -sSL https://raw.github.com/EvanHahn/umpm/master/install)"
+```sh
+curl -sSL https://raw.github.com/EvanHahn/umpm/master/install | sh
 ```
 
 Usage:
 
-```bash
+```sh
 umpm install node
 ```
 
