@@ -2,31 +2,55 @@
 
 set -e
 
-CLONE_URL="https://github.com/EvanHahn/umpm.git"
 UMPM_PATH="$HOME/.umpm"
 
-if [[ -e $UMPM_PATH ]]; then
-  echo "umpm seems to already be installed!" 1>&2;
-  echo "You can uninstall it like this:" 1>&2;
-  echo 1>&2;
-  echo "    rm -rf $UMPM_PATH" 1>&2;
-  echo 1>&2;
+command=$1
+[[ $# -lt 1 ]] && command="help"
+
+warn() {
+  echo -e "\E[33m$1" 1>&2;
+  tput sgr0
+}
+
+error() {
+  echo -e "\E[31m$1" 1>&2;
+  tput sgr0
+}
+
+if [ $command == "help" ]; then
+
+  echo "usage: umpm [COMMAND]"
+  echo "for help, visit the project's readme:"
+  echo "https://github.com/EvanHahn/umpm/blob/master/README.md"
+
+elif [ $command == "list" ]; then
+
+  ls $UMPM_PATH/sources/*/packages
+
+elif [ $command == "search" ]; then
+
+  if [ $# -lt 2 ]; then
+    error "what are you searching for?"
+    exit 1
+  fi
+
+  umpm list | grep $2
+
+elif [ $command == "implode" ]; then
+
+  warn "you're about to uninstall umpm. if you're sure, type \"goodbye\""
+  read -p "> " message
+  if [ "$message" == "goodbye" ]; then
+    echo "goodbye to you too"
+    rm -rf $UMPM_PATH
+    echo "umpm has been uninstalled."
+  else
+    echo "i live another day"
+  fi
+
+else
+
+  error "unknown command"
   exit 1
+
 fi
-
-mkdir $UMPM_PATH
-mkdir $UMPM_PATH/sources
-mkdir $UMPM_PATH/bin
-mkdir $UMPM_PATH/lib
-mkdir $UMPM_PATH/man
-mkdir $UMPM_PATH/tmp
-
-git clone -q $CLONE_URL $UMPM_PATH/sources/umpm
-
-ln -s $UMPM_PATH/sources/umpm/umpm $UMPM_PATH/bin
-
-echo "Install complete! One last thing..."
-echo "Add the following two lines to your .bash_profile (or bashrc, or whatever):"
-echo
-echo "    export PATH='$UMPM_PATH/bin:\$PATH'"
-echo "    export LD_LIBRARY_PATH='$UMPM_PATH/lib:\$LD_LIBRARY_PATH'"
