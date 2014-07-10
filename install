@@ -2,7 +2,9 @@
 
 set -e
 
-CLONE_URL="https://github.com/EvanHahn/umpm.git"
+if [ -z $CLONE_URL ]; then
+  CLONE_URL="https://github.com/EvanHahn/umpm.git"
+fi
 UMPM_PATH="$HOME/.umpm"
 
 if [[ -e $UMPM_PATH ]]; then
