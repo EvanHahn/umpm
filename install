@@ -28,8 +28,8 @@ git clone -q $CLONE_URL $UMPM_PATH/sources/umpm
 ln -s $UMPM_PATH/sources/umpm/umpm $UMPM_PATH/bin
 ln -s $UMPM_PATH/sources/umpm/activate $UMPM_PATH/activate
 
-echo "[[ -e '$UMPM_PATH/activate' ]] && source $UMPM_PATH/activate" >> .bashrc
-echo "[[ -e '$UMPM_PATH/activate' ]] && source $UMPM_PATH/activate" >> .zshrc
+echo "[[ -e '$UMPM_PATH/activate' ]] && source $UMPM_PATH/activate" >> $HOME/.bashrc
+echo "[[ -e '$UMPM_PATH/activate' ]] && source $UMPM_PATH/activate" >> $HOME/.zshrc
 source $UMPM_PATH/activate
 
 echo "umpm installed!"

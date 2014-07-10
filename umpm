@@ -38,15 +38,10 @@ elif [ $command == "search" ]; then
 
 elif [ $command == "implode" ]; then
 
-  warn "you're about to uninstall umpm. if you're sure, type \"goodbye\""
-  read -p "> " message
-  if [ "$message" == "goodbye" ]; then
-    echo "goodbye to you too"
-    rm -rf $UMPM_PATH
-    echo "umpm has been uninstalled."
-  else
-    echo "i live another day"
-  fi
+  echo "to uninstall umpm, run the following command:"
+  echo
+  echo "    rm -rf $UMPM_PATH"
+  echo
 
 else
 
