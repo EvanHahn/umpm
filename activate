@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+UMPM_PATH="$HOME/.umpm"
+
+export PATH="$UMPM_PATH/bin:$PATH"
+export LD_LIBRARY_PATH="$UMPM_PATH/lib:$LD_LIBRARY_PATH"

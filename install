@@ -26,9 +26,10 @@ mkdir $UMPM_PATH/tmp
 git clone -q $CLONE_URL $UMPM_PATH/sources/umpm
 
 ln -s $UMPM_PATH/sources/umpm/umpm $UMPM_PATH/bin
+ln -s $UMPM_PATH/sources/umpm/activate $UMPM_PATH/activate
 
-echo "Install complete! One last thing..."
-echo "Add the following two lines to your .bash_profile (or bashrc, or whatever):"
-echo
-echo "    export PATH='$UMPM_PATH/bin:\$PATH'"
-echo "    export LD_LIBRARY_PATH='$UMPM_PATH/lib:\$LD_LIBRARY_PATH'"
+echo "[[ -e '$UMPM_PATH/activate' ]] && source $UMPM_PATH/activate" >> .bashrc
+echo "[[ -e '$UMPM_PATH/activate' ]] && source $UMPM_PATH/activate" >> .zshrc
+source $UMPM_PATH/activate
+
+echo "umpm installed!"
